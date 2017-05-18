@@ -1,5 +1,5 @@
 {
-    "name": "wearejh/m2-module-import",
+    "name": "wearejh/m2-unit-test-helpers",
     "description": "Unit testing helpers for Magento 2 code bases",
     "type": "library",
     "require-dev": {
