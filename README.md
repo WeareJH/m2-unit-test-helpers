@@ -5,6 +5,7 @@
 ## Installation
 
 ```sh
+$ composer config repositories.m2-unit-test-helpers vcs git@github.com:WeareJH/m2-unit-test-helpers.git
 $ composer require --dev wearejh/m2-unit-test-helpers
 ```
 
