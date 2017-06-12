@@ -7,10 +7,27 @@ namespace Jh\UnitTestHelpers;
  */
 trait ObjectHelper
 {
+    private $mockRegistry = [];
+
     public function getObject(string $className, array $arguments = [])
     {
         $constructArguments = $this->getConstructorArguments($className, $arguments);
         return new $className(...array_values($constructArguments));
+    }
+
+    public function retrieveChildMock(string $className, string $parameterName)
+    {
+        if (!isset($this->mockRegistry[$className][$parameterName])) {
+            throw new \RuntimeException(
+                sprintf(
+                    'No object parameter named: "%s" was created for object: "%s"',
+                    $parameterName,
+                    $className
+                )
+            );
+        }
+
+        return $this->mockRegistry[$className][$parameterName];
     }
 
     private function getConstructorArguments(string $className, array $arguments = [])
@@ -38,16 +55,18 @@ trait ObjectHelper
 
             if ($parameter->getClass()) {
                 $argClassName = $parameter->getClass()->getName();
-                $object       = $this->getMockObject($argClassName, $arguments);
+                $object       = $this->prophesize($argClassName);
+
+                //store this dep for later so we can retrieve it
+                if (!isset($this->mockRegistry[$className])) {
+                    $this->mockRegistry[$className] = [];
+                }
+
+                $this->mockRegistry[$className][$parameterName] = $object;
             }
 
-            $constructArguments[$parameterName] = null === $object ? $defaultValue : $object;
+            $constructArguments[$parameterName] = null === $object ? $defaultValue : $object->reveal();
         }
         return $constructArguments;
-    }
-
-    private function getMockObject(string $className, $arguments)
-    {
-        return $this->prophesize($className)->reveal();
     }
 }
