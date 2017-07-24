@@ -2,6 +2,9 @@
 
 namespace Jh\UnitTestHelpers;
 
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
  */
@@ -11,6 +14,14 @@ trait ObjectHelper
 
     public function getObject(string $className, array $arguments = [])
     {
+        //This is a patch for AbstractModel hinting on \Magento\Framework\Model\ResourceModel\AbstractResource
+        //when it actually needs \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+        if (is_subclass_of($className, AbstractModel::class) && !isset($arguments['resource'])) {
+            $mock = $this->prophesize(AbstractDb::class);
+            $this->storeMock($className, 'resource', $mock);
+            $arguments['resource'] = $mock->reveal();
+        }
+
         $constructArguments = $this->getConstructorArguments($className, $arguments);
         return new $className(...array_values($constructArguments));
     }
@@ -58,15 +69,21 @@ trait ObjectHelper
                 $object       = $this->prophesize($argClassName);
 
                 //store this dep for later so we can retrieve it
-                if (!isset($this->mockRegistry[$className])) {
-                    $this->mockRegistry[$className] = [];
-                }
-
-                $this->mockRegistry[$className][$parameterName] = $object;
+                $this->storeMock($className, $parameterName, $object);
             }
 
             $constructArguments[$parameterName] = null === $object ? $defaultValue : $object->reveal();
         }
         return $constructArguments;
+    }
+
+    private function storeMock(string $className, string $parameterName, $object)
+    {
+        //store this dep for later so we can retrieve it
+        if (!isset($this->mockRegistry[$className])) {
+            $this->mockRegistry[$className] = [];
+        }
+
+        $this->mockRegistry[$className][$parameterName] = $object;
     }
 }
