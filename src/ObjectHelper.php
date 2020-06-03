@@ -61,7 +61,6 @@ trait ObjectHelper
                 $arg = $this->prophesize($argClassName);
 
                 //store this dep for later so we can retrieve it
-                $arg = $this->getMockObject($argClassName, $arguments);
                 $this->storeMock($className, $parameterName, $arg);
             } elseif ($parameter->isArray()) {
                 $arg = [];
