@@ -2,9 +2,15 @@
     "name": "wearejh/m2-unit-test-helpers",
     "description": "Unit testing helpers for Magento 2 code bases",
     "type": "library",
-    "require-dev": {
-        "phpunit/phpunit": "^6"
+    "require": {
+        "magento/framework": "^102.0.5"
     },
+    "repositories": [
+	{
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+	}
+    ],
     "license": "MIT",
     "authors": [
         {
