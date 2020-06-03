@@ -54,17 +54,25 @@ trait ObjectHelper
             }
 
             $defaultValue = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
-            $object       = null;
+            $arg = null;
 
             if ($parameter->getClass()) {
                 $argClassName = $parameter->getClass()->getName();
-                $object       = $this->prophesize($argClassName);
+                $arg = $this->prophesize($argClassName);
 
                 //store this dep for later so we can retrieve it
-                $this->storeMock($className, $parameterName, $object);
+                $this->storeMock($className, $parameterName, $arg);
+            } elseif ($parameter->isArray()) {
+                $arg = [];
             }
 
-            $constructArguments[$parameterName] = null === $object ? $defaultValue : $object->reveal();
+            if (null === $arg) {
+                $constructArguments[$parameterName] = $defaultValue;
+            } elseif (is_object($arg)) {
+                $constructArguments[$parameterName] = $arg->reveal();
+            } else {
+                $constructArguments[$parameterName] = $arg;
+            }
         }
         return $constructArguments;
     }
