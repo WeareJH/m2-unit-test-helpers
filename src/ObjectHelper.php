@@ -14,14 +14,6 @@ trait ObjectHelper
 
     public function getObject(string $className, array $arguments = [])
     {
-        //This is a patch for AbstractModel hinting on \Magento\Framework\Model\ResourceModel\AbstractResource
-        //when it actually needs \Magento\Framework\Model\ResourceModel\Db\AbstractDb
-        if (is_subclass_of($className, AbstractModel::class) && !isset($arguments['resource'])) {
-            $mock = $this->prophesize(AbstractDb::class);
-            $this->storeMock($className, 'resource', $mock);
-            $arguments['resource'] = $mock->reveal();
-        }
-
         $constructArguments = $this->getConstructorArguments($className, $arguments);
         return new $className(...array_values($constructArguments));
     }
