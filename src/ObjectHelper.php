@@ -4,6 +4,8 @@ namespace Jh\UnitTestHelpers;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use ReflectionClass;
+use ReflectionParameter;
 
 /**
  * @author Aydin Hassan <aydin@wearejh.com>
@@ -56,13 +58,13 @@ trait ObjectHelper
             $defaultValue = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
             $arg = null;
 
-            if ($parameter->getClass()) {
-                $argClassName = $parameter->getClass()->getName();
+            if ($this->getTypeName($parameter)) {
+                $argClassName = $this->getTypeName($parameter);
                 $arg = $this->prophesize($argClassName);
 
                 //store this dep for later so we can retrieve it
                 $this->storeMock($className, $parameterName, $arg);
-            } elseif ($parameter->isArray()) {
+            } elseif ($parameter->getType() && $parameter->isType()->getName() === 'array') {
                 $arg = [];
             }
 
@@ -85,5 +87,12 @@ trait ObjectHelper
         }
 
         $this->mockRegistry[$className][$parameterName] = $object;
+    }
+
+    private function getTypeName(ReflectionParameter $parameter):? string
+    {
+        return $parameter->getType() && !$parameter->getType()->isBuiltin()
+            ? new ReflectionClass($parameter->getType()->getName())
+            : null;
     }
 }
