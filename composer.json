@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "php": "^7.4||^8.0",
-        "magento/framework": "103.*"
+        "magento/framework": "*"
     },
     "repositories": [
 	{
